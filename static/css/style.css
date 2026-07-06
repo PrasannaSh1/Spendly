@@ -410,6 +410,14 @@ a { color: inherit; text-decoration: none; }
     margin-bottom: 1.5rem;
 }
 
+.legal-section {
+    margin-bottom: 1.75rem;
+}
+
+.legal-section:last-child {
+    margin-bottom: 0;
+}
+
 .auth-error {
     background: var(--danger-light);
     color: var(--danger);
