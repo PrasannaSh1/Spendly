@@ -73,3 +73,23 @@ def test_logout_when_not_logged_in_does_not_error(client):
 def test_login_form_action_uses_url_for(client):
     response = client.get("/login")
     assert b'action="/login"' in response.data
+
+
+def test_logged_in_user_visiting_login_redirects_to_profile(client, seeded_user):
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/login")
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/profile"
+
+
+def test_logged_in_user_visiting_register_redirects_to_profile(client, seeded_user):
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/register")
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/profile"
