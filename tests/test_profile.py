@@ -104,3 +104,106 @@ def test_profile_shows_correct_summary_and_recent_order(client, seeded_user):
     # By Category panel present, top category (highest total) is Shopping
     assert "By Category" in body
     assert "Top category" in body
+
+
+def test_profile_route_applies_valid_date_filter(client, seeded_user):
+    conn = db.get_db()
+    user = conn.execute(
+        "SELECT id FROM users WHERE email = ?", (seeded_user["email"],)
+    ).fetchone()
+    conn.close()
+
+    _insert_expenses(user["id"], [
+        (100.0, "Food", "2026-06-15", "June expense"),
+        (500.0, "Bills", "2026-07-01", "July expense"),
+    ])
+
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/profile?start_date=2026-06-01&end_date=2026-06-30")
+    body = response.data.decode()
+
+    assert response.status_code == 200
+    assert "June expense" in body
+    assert "July expense" not in body
+    assert "100.00" in body
+    assert "Clear filter" in body
+
+
+def test_profile_route_invalid_range_falls_back_with_message(client, seeded_user):
+    conn = db.get_db()
+    user = conn.execute(
+        "SELECT id FROM users WHERE email = ?", (seeded_user["email"],)
+    ).fetchone()
+    conn.close()
+
+    _insert_expenses(user["id"], [(100.0, "Food", "2026-06-15", "Should still show")])
+
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/profile?start_date=2026-07-01&end_date=2026-06-01")
+    body = response.data.decode()
+
+    assert response.status_code == 200
+    assert "Should still show" in body
+    assert "Clear filter" not in body
+    assert "before end date" in body
+
+
+def test_profile_route_malformed_date_treated_as_absent(client, seeded_user):
+    conn = db.get_db()
+    user = conn.execute(
+        "SELECT id FROM users WHERE email = ?", (seeded_user["email"],)
+    ).fetchone()
+    conn.close()
+
+    _insert_expenses(user["id"], [(100.0, "Food", "2026-06-15", "Still shown")])
+
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/profile?start_date=not-a-date&end_date=2026-06-30")
+    body = response.data.decode()
+
+    assert response.status_code == 200
+    assert "Still shown" in body
+    assert "Clear filter" not in body
+    assert "before end date" not in body
+
+
+def test_profile_route_no_params_unchanged(client, seeded_user):
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/profile")
+    assert response.status_code == 200
+    assert "Clear filter" not in response.data.decode()
+
+
+def test_profile_route_filter_zero_matches_shows_empty_state(client, seeded_user):
+    conn = db.get_db()
+    user = conn.execute(
+        "SELECT id FROM users WHERE email = ?", (seeded_user["email"],)
+    ).fetchone()
+    conn.close()
+
+    _insert_expenses(user["id"], [(100.0, "Food", "2026-07-01", "Out of range")])
+
+    client.post(
+        "/login",
+        data={"email": seeded_user["email"], "password": seeded_user["password"]},
+    )
+    response = client.get("/profile?start_date=2026-01-01&end_date=2026-01-31")
+    body = response.data.decode()
+
+    assert response.status_code == 200
+    assert "No expenses yet" in body
+    assert "No category data yet" in body
+    assert "₹0.00" in body
+    assert "Clear filter" in body

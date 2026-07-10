@@ -67,6 +67,43 @@ def test_get_summary_stats_with_no_expenses(app, seeded_user):
     assert result == {"total_spent": 0, "transaction_count": 0, "top_category": "—"}
 
 
+def test_get_summary_stats_filtered_by_date_range(app, seeded_user):
+    user_id = _user_id(seeded_user["email"])
+    _insert_expenses(user_id, [
+        (100.0, "Food", "2026-06-15", "In range"),
+        (200.0, "Bills", "2026-06-20", "In range"),
+        (300.0, "Transport", "2026-07-01", "Out of range"),
+    ])
+
+    result = queries.get_summary_stats(user_id, start_date="2026-06-01", end_date="2026-06-30")
+
+    assert result["total_spent"] == 300.0
+    assert result["transaction_count"] == 2
+    assert result["top_category"] == "Bills"
+
+
+def test_get_summary_stats_single_day_filter(app, seeded_user):
+    user_id = _user_id(seeded_user["email"])
+    _insert_expenses(user_id, [
+        (100.0, "Food", "2026-06-15", "Target day"),
+        (200.0, "Bills", "2026-06-16", "Different day"),
+    ])
+
+    result = queries.get_summary_stats(user_id, start_date="2026-06-15", end_date="2026-06-15")
+
+    assert result["total_spent"] == 100.0
+    assert result["transaction_count"] == 1
+
+
+def test_get_summary_stats_filter_no_matches_returns_zeroed(app, seeded_user):
+    user_id = _user_id(seeded_user["email"])
+    _insert_expenses(user_id, [(100.0, "Food", "2026-07-01", "Out of range")])
+
+    result = queries.get_summary_stats(user_id, start_date="2026-01-01", end_date="2026-01-31")
+
+    assert result == {"total_spent": 0, "transaction_count": 0, "top_category": "—"}
+
+
 # ---------------------------------------------------------------- #
 # get_recent_transactions
 # ---------------------------------------------------------------- #
@@ -88,6 +125,18 @@ def test_get_recent_transactions_newest_first(app, seeded_user):
 def test_get_recent_transactions_empty(app, seeded_user):
     user_id = _user_id(seeded_user["email"])
     assert queries.get_recent_transactions(user_id) == []
+
+
+def test_get_recent_transactions_filtered_by_date_range(app, seeded_user):
+    user_id = _user_id(seeded_user["email"])
+    _insert_expenses(user_id, [
+        (100.0, "Food", "2026-06-15", "In range"),
+        (200.0, "Bills", "2026-07-01", "Out of range"),
+    ])
+
+    result = queries.get_recent_transactions(user_id, start_date="2026-06-01", end_date="2026-06-30")
+
+    assert [txn["description"] for txn in result] == ["In range"]
 
 
 # ---------------------------------------------------------------- #
@@ -119,6 +168,19 @@ def test_get_category_breakdown_percentages_sum_to_100(app, seeded_user):
 def test_get_category_breakdown_empty(app, seeded_user):
     user_id = _user_id(seeded_user["email"])
     assert queries.get_category_breakdown(user_id) == []
+
+
+def test_get_category_breakdown_filtered_by_date_range(app, seeded_user):
+    user_id = _user_id(seeded_user["email"])
+    _insert_expenses(user_id, [
+        (100.0, "Food", "2026-06-15", "In range"),
+        (300.0, "Bills", "2026-07-01", "Out of range"),
+    ])
+
+    result = queries.get_category_breakdown(user_id, start_date="2026-06-01", end_date="2026-06-30")
+
+    assert [row["name"] for row in result] == ["Food"]
+    assert result[0]["pct"] == 100
 
 
 # ---------------------------------------------------------------- #
