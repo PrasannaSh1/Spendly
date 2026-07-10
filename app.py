@@ -56,6 +56,22 @@ def login_required(view_func):
     return wrapped_view
 
 
+def _parse_date_range(start_raw, end_raw):
+    if not start_raw or not end_raw:
+        return None, None, None
+
+    try:
+        start_dt = datetime.strptime(start_raw, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_raw, "%Y-%m-%d")
+    except ValueError:
+        return None, None, None
+
+    if start_dt > end_dt:
+        return None, None, "Start date must be before end date. Showing all-time data instead."
+
+    return start_raw, end_raw, None
+
+
 # ------------------------------------------------------------------ #
 # Routes                                                              #
 # ------------------------------------------------------------------ #
@@ -129,15 +145,26 @@ def profile():
     if user is None:
         session.clear()
         return redirect(url_for("login"))
-    summary = get_summary_stats(user_id)
-    transactions = get_recent_transactions(user_id)
-    categories = get_category_breakdown(user_id)
+    start_date, end_date, filter_error = _parse_date_range(
+        request.args.get("start_date"), request.args.get("end_date")
+    )
+
+    summary = get_summary_stats(user_id, start_date=start_date, end_date=end_date)
+    transactions = get_recent_transactions(
+        user_id, start_date=start_date, end_date=end_date
+    )
+    categories = get_category_breakdown(
+        user_id, start_date=start_date, end_date=end_date
+    )
     return render_template(
         "profile.html",
         user=user,
         summary=summary,
         transactions=transactions,
         categories=categories,
+        start_date=start_date,
+        end_date=end_date,
+        filter_error=filter_error,
     )
 
 

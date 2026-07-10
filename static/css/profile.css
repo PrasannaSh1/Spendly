@@ -68,6 +68,49 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Date filter form                                                    */
+/* ------------------------------------------------------------------ */
+
+.profile-filter-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 2rem;
+}
+
+.profile-filter-form {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.profile-filter-form .form-group {
+    margin-bottom: 0;
+}
+
+.profile-filter-clear {
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    align-self: center;
+}
+
+.profile-filter-clear:hover {
+    color: var(--ink);
+}
+
+.profile-filter-error {
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+
+/* ------------------------------------------------------------------ */
 /* Stats row                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -271,4 +314,6 @@
 @media (max-width: 600px) {
     .profile-header { flex-direction: column; text-align: center; }
     .profile-card { padding: 1.25rem 1rem; }
+    .profile-filter-form { flex-direction: column; align-items: stretch; }
+    .profile-filter-clear { align-self: flex-start; }
 }
