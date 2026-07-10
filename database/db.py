@@ -71,64 +71,6 @@ def get_user_by_email(email):
         conn.close()
 
 
-def get_user_by_id(user_id):
-    conn = get_db()
-    try:
-        return conn.execute(
-            "SELECT * FROM users WHERE id = ?", (user_id,)
-        ).fetchone()
-    finally:
-        conn.close()
-
-
-def get_expense_summary(user_id):
-    conn = get_db()
-    try:
-        return conn.execute(
-            """
-            SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total
-            FROM expenses
-            WHERE user_id = ?
-            """,
-            (user_id,),
-        ).fetchone()
-    finally:
-        conn.close()
-
-
-def get_recent_expenses(user_id, limit=5):
-    conn = get_db()
-    try:
-        return conn.execute(
-            """
-            SELECT * FROM expenses
-            WHERE user_id = ?
-            ORDER BY date DESC
-            LIMIT ?
-            """,
-            (user_id, limit),
-        ).fetchall()
-    finally:
-        conn.close()
-
-
-def get_category_breakdown(user_id):
-    conn = get_db()
-    try:
-        return conn.execute(
-            """
-            SELECT category, COALESCE(SUM(amount), 0) AS total
-            FROM expenses
-            WHERE user_id = ?
-            GROUP BY category
-            ORDER BY total DESC
-            """,
-            (user_id,),
-        ).fetchall()
-    finally:
-        conn.close()
-
-
 def seed_db():
     conn = get_db()
     row = conn.execute("SELECT COUNT(*) AS count FROM users").fetchone()
@@ -144,14 +86,14 @@ def seed_db():
     user_id = cursor.lastrowid
 
     sample_expenses = [
-        (user_id, 350.0, "Food", "2026-07-02", "Groceries at BigBasket"),
-        (user_id, 120.0, "Transport", "2026-07-04", "Auto fare"),
-        (user_id, 1200.0, "Bills", "2026-07-06", "Electricity bill"),
-        (user_id, 600.0, "Health", "2026-07-09", "Pharmacy purchase"),
-        (user_id, 450.0, "Entertainment", "2026-07-13", "Movie tickets"),
-        (user_id, 2200.0, "Shopping", "2026-07-17", "New shoes"),
-        (user_id, 150.0, "Other", "2026-07-21", "Miscellaneous"),
-        (user_id, 800.0, "Food", "2026-07-25", "Dinner with friends"),
+        (user_id, 26.24, "Food", "2026-06-12", "Groceries at BigBasket"),
+        (user_id, 35.00, "Transport", "2026-06-15", "Auto fare"),
+        (user_id, 100.00, "Bills", "2026-06-18", "Electricity bill"),
+        (user_id, 45.00, "Health", "2026-06-22", "Pharmacy purchase"),
+        (user_id, 30.00, "Entertainment", "2026-06-26", "Movie tickets"),
+        (user_id, 70.00, "Shopping", "2026-06-30", "New shoes"),
+        (user_id, 20.00, "Other", "2026-07-04", "Miscellaneous"),
+        (user_id, 20.00, "Food", "2026-07-08", "Dinner with friends"),
     ]
     conn.executemany(
         """
