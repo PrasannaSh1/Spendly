@@ -17,22 +17,22 @@
             <div class="profile-header-info">
                 <h1 class="profile-name">{{ user.name }}</h1>
                 <p class="profile-email">{{ user.email }}</p>
-                <p class="profile-since">Member since {{ user.created_at | friendly_date }}</p>
+                <p class="profile-since">Member since {{ user.member_since }}</p>
             </div>
         </div>
 
         <div class="profile-stats">
             <div class="profile-stat">
                 <span class="profile-stat-label">Total spent</span>
-                <span class="profile-stat-value">{{ summary.total | inr }}</span>
+                <span class="profile-stat-value">{{ summary.total_spent | inr }}</span>
             </div>
             <div class="profile-stat">
                 <span class="profile-stat-label">Transactions</span>
-                <span class="profile-stat-value">{{ summary.count }}</span>
+                <span class="profile-stat-value">{{ summary.transaction_count }}</span>
             </div>
             <div class="profile-stat">
                 <span class="profile-stat-label">Top category</span>
-                <span class="profile-stat-value profile-stat-value-text">{{ top_category or "—" }}</span>
+                <span class="profile-stat-value profile-stat-value-text">{{ summary.top_category }}</span>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
             <div class="profile-card">
                 <h2 class="profile-card-title">Recent Transactions</h2>
 
-                {% if recent_expenses %}
+                {% if transactions %}
                 <div class="profile-table-wrap">
                     <table class="profile-table">
                         <thead>
@@ -53,16 +53,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for expense in recent_expenses %}
+                            {% for txn in transactions %}
                             <tr>
-                                <td class="profile-table-date">{{ expense.date | friendly_date }}</td>
-                                <td>{{ expense.description or "—" }}</td>
+                                <td class="profile-table-date">{{ txn.date | friendly_date }}</td>
+                                <td>{{ txn.description or "—" }}</td>
                                 <td>
-                                    <span class="expense-tag expense-tag-{{ expense.category | lower }}">
-                                        {{ expense.category }}
+                                    <span class="expense-tag expense-tag-{{ txn.category | lower }}">
+                                        {{ txn.category }}
                                     </span>
                                 </td>
-                                <td class="text-right expense-amount">{{ expense.amount | inr }}</td>
+                                <td class="text-right expense-amount">{{ txn.amount | inr }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -78,18 +78,17 @@
             <div class="profile-card">
                 <h2 class="profile-card-title">By Category</h2>
 
-                {% if category_breakdown %}
+                {% if categories %}
                 <div class="category-breakdown">
-                    {% set max_total = category_breakdown[0].total %}
-                    {% for row in category_breakdown %}
+                    {% for row in categories %}
                     <div class="category-row">
                         <div class="category-row-top">
-                            <span class="category-name">{{ row.category }}</span>
-                            <span class="category-amount">{{ row.total | inr }}</span>
+                            <span class="category-name">{{ row.name }}</span>
+                            <span class="category-amount">{{ row.amount | inr }}</span>
                         </div>
                         <div class="category-bar-track">
                             <div class="category-bar-fill category-bar-{{ (loop.index0 % 4) + 1 }}"
-                                 style="width: {{ (row.total / max_total * 100) | round(1) }}%"></div>
+                                 style="width: {{ row.pct }}%"></div>
                         </div>
                     </div>
                     {% endfor %}

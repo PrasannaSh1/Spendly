@@ -11,9 +11,11 @@ from database.db import (
     seed_db,
     create_user,
     get_user_by_email,
+)
+from database.queries import (
     get_user_by_id,
-    get_expense_summary,
-    get_recent_expenses,
+    get_summary_stats,
+    get_recent_transactions,
     get_category_breakdown,
 )
 
@@ -127,17 +129,15 @@ def profile():
     if user is None:
         session.clear()
         return redirect(url_for("login"))
-    summary = get_expense_summary(user_id)
-    recent_expenses = get_recent_expenses(user_id, limit=5)
-    category_breakdown = get_category_breakdown(user_id)
-    top_category = category_breakdown[0]["category"] if category_breakdown else None
+    summary = get_summary_stats(user_id)
+    transactions = get_recent_transactions(user_id)
+    categories = get_category_breakdown(user_id)
     return render_template(
         "profile.html",
         user=user,
         summary=summary,
-        recent_expenses=recent_expenses,
-        category_breakdown=category_breakdown,
-        top_category=top_category,
+        transactions=transactions,
+        categories=categories,
     )
 
 

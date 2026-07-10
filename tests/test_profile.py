@@ -69,7 +69,12 @@ def test_profile_shows_correct_summary_and_recent_order(client, seeded_user):
         (300.0, "Bills", "2026-07-03", "Third"),
         (400.0, "Health", "2026-07-04", "Fourth"),
         (500.0, "Entertainment", "2026-07-05", "Fifth"),
-        (600.0, "Shopping", "2026-07-06", "Newest"),
+        (600.0, "Shopping", "2026-07-06", "Sixth"),
+        (700.0, "Food", "2026-07-07", "Seventh"),
+        (800.0, "Transport", "2026-07-08", "Eighth"),
+        (900.0, "Bills", "2026-07-09", "Ninth"),
+        (1000.0, "Health", "2026-07-10", "Tenth"),
+        (1100.0, "Entertainment", "2026-07-11", "Newest"),
     ])
 
     client.post(
@@ -81,19 +86,20 @@ def test_profile_shows_correct_summary_and_recent_order(client, seeded_user):
 
     body = response.data.decode()
 
-    # total = 100+200+300+400+500+600 = 2100.00, count = 6
-    assert "2,100.00" in body
-    assert ">6<" in body
+    # total = 100+200+...+1100 = 6600.00, count = 11
+    assert "6,600.00" in body
+    assert ">11<" in body
 
-    # only 5 most recent shown, newest first, oldest excluded
+    # only 10 most recent shown, newest first, oldest excluded
     assert "Newest" in body
-    assert "Fifth" in body
-    assert "Fourth" in body
-    assert "Third" in body
-    assert "Second" in body
+    assert "Tenth" in body
+    assert "Ninth" in body
+    assert "Eighth" in body
+    assert "Seventh" in body
+    assert "Sixth" in body
     assert "Oldest" not in body
 
-    assert body.index("Newest") < body.index("Second")
+    assert body.index("Newest") < body.index("Tenth")
 
     # By Category panel present, top category (highest total) is Shopping
     assert "By Category" in body
