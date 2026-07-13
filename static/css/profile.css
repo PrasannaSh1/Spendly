@@ -34,6 +34,11 @@
     padding: 1.75rem 2rem;
 }
 
+.profile-add-expense-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 .profile-avatar {
     width: 64px;
     height: 64px;
