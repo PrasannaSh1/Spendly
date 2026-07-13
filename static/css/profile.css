@@ -257,6 +257,35 @@
     color: var(--ink);
 }
 
+.profile-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.profile-table-delete-form {
+    display: contents;
+}
+
+.profile-table-delete-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.profile-table-delete-link:hover {
+    color: var(--danger);
+    background: var(--danger-light);
+    border-radius: var(--radius-sm);
+}
+
 /* ------------------------------------------------------------------ */
 /* Category breakdown bars                                             */
 /* ------------------------------------------------------------------ */

@@ -15,6 +15,7 @@ from database.db import (
     get_user_by_email,
     get_expense_by_id,
     update_expense,
+    delete_expense as db_delete_expense,
     EXPENSE_CATEGORIES,
 )
 from database.queries import (
@@ -308,14 +309,14 @@ def edit_expense(id):
     return redirect(url_for("profile"))
 
 
-# ------------------------------------------------------------------ #
-# Placeholder routes — students will implement these                  #
-# ------------------------------------------------------------------ #
-
-
-@app.route("/expenses/<int:id>/delete")
+@app.route("/expenses/<int:id>/delete", methods=["POST"])
+@login_required
 def delete_expense(id):
-    return "Delete expense — coming in Step 9"
+    expense = get_expense_by_id(id, session["user_id"])
+    if expense is None:
+        abort(404)
+    db_delete_expense(id, session["user_id"])
+    return redirect(url_for("profile"))
 
 
 if __name__ == "__main__":
