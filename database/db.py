@@ -45,6 +45,17 @@ def init_db():
     conn.close()
 
 
+EXPENSE_CATEGORIES = [
+    "Food",
+    "Transport",
+    "Bills",
+    "Health",
+    "Entertainment",
+    "Shopping",
+    "Other",
+]
+
+
 def create_user(name, email, password):
     password_hash = generate_password_hash(password)
     conn = get_db()
@@ -57,6 +68,22 @@ def create_user(name, email, password):
         return cursor.lastrowid
     except sqlite3.IntegrityError:
         return None
+    finally:
+        conn.close()
+
+
+def create_expense(user_id, amount, category, date, description):
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            """
+            INSERT INTO expenses (user_id, amount, category, date, description)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (user_id, amount, category, date, description),
+        )
+        conn.commit()
+        return cursor.lastrowid
     finally:
         conn.close()
 

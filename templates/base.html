@@ -23,6 +23,7 @@
                 {% if request.endpoint != 'profile' %}
                 <a href="{{ url_for('profile') }}">Profile</a>
                 {% endif %}
+                <a href="{{ url_for('add_expense') }}" class="{% if request.endpoint == 'add_expense' %}nav-active{% endif %}">Add expense</a>
                 <a href="{{ url_for('analytics') }}" class="{% if request.endpoint == 'analytics' %}nav-active{% endif %}">Analytics</a>
                 <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
                 {% else %}
