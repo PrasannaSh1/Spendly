@@ -1,0 +1,22 @@
+/* ------------------------------------------------------------------ */
+/* Edit Expense page — page-specific tweaks on top of style.css       */
+/* ------------------------------------------------------------------ */
+
+select.form-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%),
+                       linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 55%, calc(100% - 15px) 55%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.edit-expense-cancel {
+    color: var(--ink-muted);
+}
+
+.edit-expense-cancel:hover {
+    color: var(--ink);
+    text-decoration: underline;
+}

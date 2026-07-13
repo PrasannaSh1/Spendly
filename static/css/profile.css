@@ -247,6 +247,16 @@
 .expense-tag-shopping { background: var(--danger-light); color: var(--danger); }
 .expense-tag-other { background: var(--border-soft); color: var(--ink-muted); }
 
+.profile-table-edit-link {
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+    text-decoration: underline;
+}
+
+.profile-table-edit-link:hover {
+    color: var(--ink);
+}
+
 /* ------------------------------------------------------------------ */
 /* Category breakdown bars                                             */
 /* ------------------------------------------------------------------ */

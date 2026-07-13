@@ -84,6 +84,7 @@
                                 <th>Description</th>
                                 <th>Category</th>
                                 <th class="text-right">Amount</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,6 +98,9 @@
                                     </span>
                                 </td>
                                 <td class="text-right expense-amount">{{ txn.amount | inr }}</td>
+                                <td class="text-right">
+                                    <a href="{{ url_for('edit_expense', id=txn.id) }}" class="profile-table-edit-link">Edit</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

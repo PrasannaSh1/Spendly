@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, abort
 from werkzeug.security import check_password_hash
 
 from database.db import (
@@ -13,6 +13,8 @@ from database.db import (
     create_user,
     create_expense,
     get_user_by_email,
+    get_expense_by_id,
+    update_expense,
     EXPENSE_CATEGORIES,
 )
 from database.queries import (
@@ -100,6 +102,16 @@ def _render_add_expense_form(error=None, form_values=None):
         "add_expense.html",
         categories=EXPENSE_CATEGORIES,
         today=datetime.now().strftime("%Y-%m-%d"),
+        error=error,
+        form=form_values,
+    )
+
+
+def _render_edit_expense_form(expense, error=None, form_values=None):
+    return render_template(
+        "edit_expense.html",
+        expense=expense,
+        categories=EXPENSE_CATEGORIES,
         error=error,
         form=form_values,
     )
@@ -257,13 +269,48 @@ def add_expense():
     return redirect(url_for("profile"))
 
 
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_expense(id):
+    expense = get_expense_by_id(id, session["user_id"])
+    if expense is None:
+        abort(404)
+    expense = dict(expense)
+
+    if request.method == "GET":
+        return _render_edit_expense_form(expense)
+
+    amount_raw = request.form.get("amount", "")
+    category = request.form.get("category", "")
+    date_raw = request.form.get("date", "")
+    description_raw = request.form.get("description", "").strip()
+    description = description_raw or None
+
+    form_values = {
+        "amount": amount_raw,
+        "category": category,
+        "date": date_raw,
+        "description": description_raw,
+    }
+
+    amount, error = _parse_amount(amount_raw)
+    if error:
+        return _render_edit_expense_form(expense, error, form_values)
+
+    if category not in EXPENSE_CATEGORIES:
+        return _render_edit_expense_form(expense, "Please choose a valid category.", form_values)
+
+    date_value, error = _parse_expense_date(date_raw)
+    if error:
+        return _render_edit_expense_form(expense, error, form_values)
+
+    update_expense(id, session["user_id"], amount, category, date_value, description)
+    return redirect(url_for("profile"))
+
+
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
-
-@app.route("/expenses/<int:id>/edit")
-def edit_expense(id):
-    return "Edit expense — coming in Step 8"
 
 
 @app.route("/expenses/<int:id>/delete")
