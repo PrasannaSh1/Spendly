@@ -99,7 +99,7 @@ pytest -s
 | `GET /logout` | Implemented — clears session, redirects to `login` |
 | `GET /profile` | Stub — Step 4 |
 | `GET /expenses/add` | Stub — Step 7 |
-| `GET /expenses/<id>/edit` | Stub — Step 8 |
+| `GET/POST /expenses/<id>/edit` | Implemented — renders `edit_expense.html`, pre-filled; `POST` validates and updates |
 | `GET /expenses/<id>/delete` | Stub — Step 9 |
 
 **Do not implement a stub route unless the active task explicitly targets that step.**
